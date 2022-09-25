@@ -1,6 +1,9 @@
 import 'package:chat_app/models/user.dart';
+import 'package:chat_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:provider/provider.dart';
+// import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 class UsersPage extends StatefulWidget {
   const UsersPage({Key? key}) : super(key: key);
@@ -21,16 +24,23 @@ class _UsersPageState extends State<UsersPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+
     return Scaffold(
         appBar: AppBar(
-          title: const Text(
-            'My Name',
+          title: Text(
+            // first character to uppercase
+            authService.user.name.substring(0, 1).toUpperCase() +
+                authService.user.name.substring(1),
             style: TextStyle(color: Colors.black54),
           ),
           backgroundColor: Colors.white,
           leading: IconButton(
-              onPressed: null,
-              icon: Icon(
+              onPressed: () {
+                Navigator.pushReplacementNamed(context, 'login');
+                AuthService.deleteToken();
+              },
+              icon: const Icon(
                 Icons.exit_to_app,
                 color: Colors.black54,
               )),

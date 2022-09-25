@@ -1,8 +1,11 @@
+import 'package:chat_app/helpers/show_alert.dart';
+import 'package:chat_app/services/auth_service.dart';
 import 'package:chat_app/widgets/blue_button.dart';
 import 'package:chat_app/widgets/custom_input.dart';
 import 'package:chat_app/widgets/labels.dart';
 import 'package:chat_app/widgets/logo.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -53,6 +56,8 @@ class __FormState extends State<_Form> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+
     return Container(
       margin: EdgeInsets.only(top: 40),
       padding: EdgeInsets.symmetric(horizontal: 50),
@@ -70,27 +75,23 @@ class __FormState extends State<_Form> {
               textController: passCtrl),
           BlueButton(
               text: "Login",
-              onPressed: () {
-                print(emailCtrl.text);
-                print(passCtrl.text);
-              })
-          // CustomInput(
-          //   icon: Icons.mail_outline,
-          //   placeholder: 'Email',
-          //   keyboardType: TextInputType.emailAddress,
-          // ),
-          // CustomInput(
-          //   icon: Icons.lock_outline,
-          //   placeholder: 'Password',
-          //   keyboardType: TextInputType.text,
-          //   isPassword: true,
-          // ),
-          // BotonAzul(
-          //   text: 'Login',
-          //   onPressed: () {
-          //     print('Hola Mundo');
-          //   },
-          // )
+              onPressed: authService.authenticating
+                  ? null
+                  : () async {
+                      FocusScope.of(context).unfocus();
+                      final loginOk = await authService.login(
+                          emailCtrl.text.trim(), passCtrl.text.trim());
+
+                      if (loginOk) {
+                        if (mounted) {
+                          Navigator.pushReplacementNamed(context, 'users');
+                        }
+                      } else {
+                        if (mounted) {
+                          showAlert(context, "Login error", "Review your data");
+                        }
+                      }
+                    })
         ],
       ),
     );
